@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+      
+        stage("pull down code base"){
+            steps{
+
+            withCredentials([string(credentialsId:'ACCESS',variable:'AWS_ACCESS_KEY_ID'), string(credentialsId:'SECRET' , variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                      
+            sshagent(['PRIVATE_KEY']) {
+
+            sh "ssh -o StrictHostKeyChecking=no ec2-user@52.16.216.2 'sudo docker container rm -f jaiye_app || true; sudo docker image rm -f ade_app || true; rm -rf codebase || true; git clone https://github.com/jungle700/june2020_singup_project.git codebase || true; cd codebase || true  && sudo docker build -t ade_app:latest .; sudo systemctl daemon-reload && sudo systemctl restart docker; sudo docker run -d  -p 4000:5000 --name jaiye_app ade_app:latest' "
+            
+            
+         
+            }
+        }
+        
+        
+            }
+        }
+        
+     
+        
+                    
+                }
+        
+        }
+        

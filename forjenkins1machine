@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Initial Clean') {
+            steps {
+                  sh 'sudo docker container rm -f tunde_app || true'
+                  sh 'sudo docker image   rm -f ade_app || true'
+                  sh 'rm -rf codebase || true'
+            }
+        }
+        
+        stage("pull down code base"){
+            steps{
+                 sh 'git clone https://github.com/jungle700/june2020_singup_project.git codebase'
+            echo "++++++Code Pulled++++++"
+            }
+        }
+        
+        stage("Docker Build"){
+            steps{
+                sh 'cd codebase/ && sudo docker build -t ade_app:latest .'
+               // sh 'sudo systemctl daemon-reload && sudo systemctl restart docker'
+               
+                echo "++++++Image Created+++++"
+            }
+        }
+        
+        stage("Run App in App Server"){
+              steps {
+                   withCredentials([string(credentialsId:'ACCESS',variable:'AWS_ACCESS_KEY_ID'), string(credentialsId:'SECRET' , variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                      sh 'sudo docker run -d  -p 4000:5000 --name tunde_app ade_app:latest'
+                 }
+                 echo 'code deployed'
+             }
+        }
+        
+        stage("complete"){
+             steps {
+                 echo "deployed"
+              }
+        
+               }
+               
+                }
+        
+        }
+        
+
